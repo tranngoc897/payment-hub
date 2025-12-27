@@ -34,6 +34,7 @@ public class TemporalWorkflowService {
         private final WorkflowClient client;
         private final ScheduleClient scheduleClient;
         private final ScheduleRepository scheduleRepo;
+        private final WorkflowSchedulerService workflowSchedulerService;
 
         public String startAdvancedPipeline(String pipelineName, List<Map<String, Object>> tasks,
                         Map<String, Object> inputData) {
@@ -303,11 +304,14 @@ public class TemporalWorkflowService {
         public String scheduleWorkflow(String workflowType, WorkflowSchedulerService.WorkflowScheduleConfig config) {
                 log.info("Scheduling workflow: {} with config: {}", workflowType, config);
 
+
                 // In real implementation, inject WorkflowSchedulerService
                 // return workflowSchedulerService.scheduleWorkflowExecution(workflowType, config);
 
                 // Mock response
-                return "SCH-" + workflowType + "-" + System.nanoTime();
+                //return "SCH-" + workflowType + "-" + System.nanoTime();
+
+                return workflowSchedulerService.scheduleWorkflowExecution(workflowType, config);
         }
 
         /**

@@ -26,6 +26,7 @@ public class WorkflowController {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WorkflowController.class);
     private final TemporalWorkflowService workflowService;
+    private final WorkflowSchedulerService workflowSchedulerService;
 
 
     @PostMapping("/{workflowId}/cancel")
@@ -309,22 +310,78 @@ public class WorkflowController {
             @RequestParam(required = false) String workflowType) {
 
         log.info("Getting scheduled workflows: type={}", workflowType);
-        // In real implementation, inject WorkflowSchedulerService
-        // List<WorkflowSchedulerService.ScheduledWorkflowSummary> schedules =
-        //         workflowSchedulerService.listScheduledWorkflows(workflowType);
 
-        // Mock response for demo
-        List<ScheduledWorkflowSummary> mockSchedules = List.of(
-                WorkflowSchedulerService.ScheduledWorkflowSummary.builder()
-                        .scheduledWorkflowId("SCH-RECONCILIATION-EOD")
-                        .workflowType("RECONCILIATION")
-                        .cronExpression("0 0 18 * * ?")
-                        .status("ACTIVE")
-                        .description("End of day scheduler reconciliation")
-                        .build()
-        );
+        List<ScheduledWorkflowSummary> schedules = workflowSchedulerService.listScheduledWorkflows(workflowType);
 
-        return ResponseEntity.ok(mockSchedules);
+        return ResponseEntity.ok(schedules);
+    }
+
+    /**
+     * Update Workflow Schedule
+     */
+    @PutMapping("/scheduled/{scheduledWorkflowId}")
+    public ResponseEntity<String> updateWorkflowSchedule(@PathVariable String scheduledWorkflowId,
+                                                        @RequestBody WorkflowScheduleRequest request) {
+        log.info("Updating workflow schedule: {}", scheduledWorkflowId);
+
+        WorkflowSchedulerService.WorkflowScheduleConfig config = convertToScheduleConfig(request);
+        workflowSchedulerService.updateWorkflowSchedule(scheduledWorkflowId, config);
+
+        return ResponseEntity.ok("Workflow schedule updated successfully");
+    }
+
+    /**
+     * Pause Workflow Schedule
+     */
+    @PostMapping("/scheduled/{scheduledWorkflowId}/pause")
+    public ResponseEntity<String> pauseWorkflowSchedule(@PathVariable String scheduledWorkflowId,
+                                                       @RequestParam String pausedBy) {
+        log.info("Pausing workflow schedule: {} by user: {}", scheduledWorkflowId, pausedBy);
+
+        workflowSchedulerService.pauseWorkflowSchedule(scheduledWorkflowId, pausedBy);
+
+        return ResponseEntity.ok("Workflow schedule paused successfully");
+    }
+
+    /**
+     * Resume Workflow Schedule
+     */
+    @PostMapping("/scheduled/{scheduledWorkflowId}/resume")
+    public ResponseEntity<String> resumeWorkflowSchedule(@PathVariable String scheduledWorkflowId,
+                                                        @RequestParam String resumedBy) {
+        log.info("Resuming workflow schedule: {} by user: {}", scheduledWorkflowId, resumedBy);
+
+        workflowSchedulerService.resumeWorkflowSchedule(scheduledWorkflowId, resumedBy);
+
+        return ResponseEntity.ok("Workflow schedule resumed successfully");
+    }
+
+    /**
+     * Delete Workflow Schedule
+     */
+    @DeleteMapping("/scheduled/{scheduledWorkflowId}")
+    public ResponseEntity<String> deleteWorkflowSchedule(@PathVariable String scheduledWorkflowId,
+                                                        @RequestParam String deletedBy) {
+        log.info("Deleting workflow schedule: {} by user: {}", scheduledWorkflowId, deletedBy);
+
+        workflowSchedulerService.deleteWorkflowSchedule(scheduledWorkflowId, deletedBy);
+
+        return ResponseEntity.ok("Workflow schedule deleted successfully");
+    }
+
+    /**
+     * Get Scheduled Workflow Details
+     */
+    @GetMapping("/scheduled/{scheduledWorkflowId}/details")
+    public ResponseEntity<WorkflowSchedulerService.ScheduledWorkflowDetails> getScheduledWorkflowDetails(
+            @PathVariable String scheduledWorkflowId) {
+
+        log.info("Getting scheduled workflow details: {}", scheduledWorkflowId);
+
+        WorkflowSchedulerService.ScheduledWorkflowDetails details =
+                workflowSchedulerService.getScheduledWorkflowDetails(scheduledWorkflowId);
+
+        return ResponseEntity.ok(details);
     }
 
     // ==================== HELPER METHODS ====================
