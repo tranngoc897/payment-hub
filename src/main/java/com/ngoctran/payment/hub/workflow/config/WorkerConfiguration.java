@@ -1,4 +1,4 @@
-package com.ngoctran.payment.hub.workflow;
+package com.ngoctran.payment.hub.workflow.config;
 
 import com.ngoctran.payment.hub.scheduler.AdvancedPipelineWorkflowImpl;
 import com.ngoctran.payment.hub.scheduler.activity.AccountVerificationActivityImpl;

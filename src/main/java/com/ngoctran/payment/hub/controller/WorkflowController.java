@@ -1,10 +1,10 @@
 package com.ngoctran.payment.hub.controller;
 
+import com.ngoctran.payment.hub.service.TemporalWorkflowService;
+import com.ngoctran.payment.hub.service.WorkflowSchedulerService;
 import com.ngoctran.payment.hub.workflow.ScheduleStatus;
-import com.ngoctran.payment.hub.workflow.TemporalWorkflowService;
 import com.ngoctran.payment.hub.workflow.WorkflowHistoryEntity;
-import com.ngoctran.payment.hub.workflow.WorkflowSchedulerService;
-import com.ngoctran.payment.hub.workflow.WorkflowSchedulerService.ScheduledWorkflowSummary;
+import com.ngoctran.payment.hub.service.WorkflowSchedulerService.ScheduledWorkflowSummary;
 import com.ngoctran.payment.hub.workflow.ScheduleEntity;
 import com.ngoctran.payment.hub.reconciliation.ReconciliationWorkflow;
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class WorkflowController {
     @PostMapping("/workflows/payment/submit-priority")
     public ResponseEntity<String> submitPaymentWithPriority(@RequestBody PriorityPaymentRequest request) {
         log.info("Submitting scheduler with priority: {} - {}", request.getPaymentId(), request.getPriority());
-        // In real implementation, this would integrate with PaymentSchedulerAdvanced
+        // In real implementation, this would integrate with PaymentSchedulerAdvancedService
         return ResponseEntity.ok("Payment submitted with priority: " + request.getPriority());
     }
 
@@ -139,7 +139,7 @@ public class WorkflowController {
     @PostMapping("/workflows/payment/process-batch")
     public ResponseEntity<BatchProcessingResponse> processBatchPayments(@RequestBody BatchPaymentRequest request) {
         log.info("Processing batch payments: {} items", request.getPaymentIds().size());
-        // In real implementation, this would use PaymentSchedulerAdvanced.processBatchOptimized()
+        // In real implementation, this would use PaymentSchedulerAdvancedService.processBatchOptimized()
         BatchProcessingResponse response = new BatchProcessingResponse(
                 request.getPaymentIds().size(),
                 request.getPaymentIds().size(), // Assume all success for demo
@@ -155,7 +155,7 @@ public class WorkflowController {
     @GetMapping("/workflows/dlq/status")
     public ResponseEntity<DLQStatusResponse> getDLQStatus() {
         log.info("Getting DLQ status");
-        // In real implementation, this would query PaymentSchedulerAdvanced
+        // In real implementation, this would query PaymentSchedulerAdvancedService
         DLQStatusResponse response = new DLQStatusResponse(0, new ArrayList<>());
         return ResponseEntity.ok(response);
     }
@@ -166,7 +166,7 @@ public class WorkflowController {
     @GetMapping("/workflows/advanced/metrics")
     public ResponseEntity<AdvancedMetricsResponse> getAdvancedMetrics() {
         log.info("Getting advanced scheduler metrics");
-        // In real implementation, this would aggregate metrics from PaymentSchedulerAdvanced
+        // In real implementation, this would aggregate metrics from PaymentSchedulerAdvancedService
         AdvancedMetricsResponse response = new AdvancedMetricsResponse(
                 Map.of("rateLimiter", "ACTIVE", "circuitBreaker", "CLOSED"),
                 Map.of("totalWorkers", 3, "overloadedWorkers", 0),

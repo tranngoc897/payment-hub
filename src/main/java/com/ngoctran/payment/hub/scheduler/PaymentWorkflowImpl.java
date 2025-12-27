@@ -9,6 +9,7 @@ import com.ngoctran.payment.hub.scheduler.activity.PaymentConfirmationActivity;
 import com.ngoctran.payment.hub.scheduler.activity.PaymentExecutionActivity;
 import com.ngoctran.payment.hub.scheduler.activity.PaymentRoutingActivity;
 import com.ngoctran.payment.hub.scheduler.activity.PaymentValidationActivity;
+import com.ngoctran.payment.hub.service.PaymentSchedulerAdvancedService;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
@@ -51,7 +52,7 @@ public class PaymentWorkflowImpl implements PaymentWorkflow {
     private static final int CIRCUIT_BREAKER_THRESHOLD = 5;
 
     // Advanced scheduler features (static instance for workflow compatibility)
-    private static final PaymentSchedulerAdvanced advancedScheduler = new PaymentSchedulerAdvanced();
+    private static final PaymentSchedulerAdvancedService advancedScheduler = new PaymentSchedulerAdvancedService();
 
     // Workflow state for advanced features
     private String tenantId = "DEFAULT_TENANT";
@@ -112,7 +113,7 @@ public class PaymentWorkflowImpl implements PaymentWorkflow {
 
         try {
             // Record scheduler submission event
-            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvanced.EventType.PAYMENT_SUBMITTED,
+            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvancedService.EventType.PAYMENT_SUBMITTED,
                     Map.of("amount", amount, "currency", currency, "accountId", accountId,
                            "tenantId", tenantId, "userId", userId));
 
@@ -131,7 +132,7 @@ public class PaymentWorkflowImpl implements PaymentWorkflow {
             validatePaymentDetails();
 
             // Record validation event
-            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvanced.EventType.PAYMENT_VALIDATED,
+            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvancedService.EventType.PAYMENT_VALIDATED,
                     Map.of("validationResult", "SUCCESS"));
 
             // Step 2: Account Verification
@@ -158,14 +159,14 @@ public class PaymentWorkflowImpl implements PaymentWorkflow {
             updateProgress("EXECUTING_PAYMENT", 80, "PROCESSING");
 
             // Record execution start event
-            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvanced.EventType.PAYMENT_EXECUTED,
+            advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvancedService.EventType.PAYMENT_EXECUTED,
                     Map.of("executionStarted", "true"));
 
             PaymentExecutionActivity.PaymentExecutionResult executionResult = executePayment();
 
             // Record successful execution
             if (executionResult.isSuccess()) {
-                advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvanced.EventType.PAYMENT_COMPLETED,
+                advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvancedService.EventType.PAYMENT_COMPLETED,
                         Map.of("transactionId", executionResult.getTransactionId(),
                               "processingTime", executionResult.getProcessingTime()));
             }
@@ -368,7 +369,7 @@ public class PaymentWorkflowImpl implements PaymentWorkflow {
         log.error("Handling scheduler failure for scheduler: {}", paymentId, e);
 
         // Record failure event
-        advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvanced.EventType.PAYMENT_FAILED,
+        advancedScheduler.recordPaymentEvent(paymentId, PaymentSchedulerAdvancedService.EventType.PAYMENT_FAILED,
                 Map.of("error", e.getMessage(), "errorType", e.getClass().getSimpleName()));
 
         // Use Dead Letter Queue for failed payments (Advanced Feature)

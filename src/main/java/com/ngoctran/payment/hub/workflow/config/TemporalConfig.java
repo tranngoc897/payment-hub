@@ -1,4 +1,4 @@
-package com.ngoctran.payment.hub.workflow;
+package com.ngoctran.payment.hub.workflow.config;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;

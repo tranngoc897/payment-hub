@@ -1,4 +1,4 @@
-package com.ngoctran.payment.hub.scheduler;
+package com.ngoctran.payment.hub.service;
 
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import java.util.concurrent.*;
  */
 @Component
 @Slf4j
-public class PaymentSchedulerAdvanced {
+public class PaymentSchedulerAdvancedService {
 
     // ==================== 1. RATE LIMITING & THROTTLING ====================
 
